@@ -35,15 +35,15 @@ def get_imports(obj):
     return list(import_lines)
 
 
-class NotebookCommand(ParadeCommand):
+class LabCommand(ParadeCommand):
     requires_workspace = True
 
     def run_internal(self, context, **kwargs):
         task_name = kwargs['task']
-        NotebookCommand.init_jupyter(context)
+        LabCommand.init_jupyter(context)
 
         if task_name is None:
-            os.system('jupyter notebook --ip=0.0.0.0 --allow-root')
+            os.system('jupyter lab --ip=0.0.0.0 --allow-root')
             return
 
         task = context.get_task(task_name, task_class=ETLTask)
@@ -75,13 +75,13 @@ class NotebookCommand(ParadeCommand):
             f.write(ipy_content.encode())
             f.flush()
 
-        os.system('jupyter notebook {}.ipynb'.format(task.name))
+        os.system('jupyter lab {}.ipynb'.format(task.name))
 
 
     @staticmethod
     def init_jupyter(context):
         jupyter_path = os.path.join(context.workdir, '.jupyter')
-        NotebookCommand._init_jupyter(jupyter_path)
+        LabCommand._init_jupyter(jupyter_path)
         # We need set PARADE_WORKSPACE since we'll head to notebook dir
         os.environ['PARADE_WORKSPACE'] = context.workdir
         os.chdir(os.path.join(jupyter_path, 'notebook'))
@@ -96,7 +96,7 @@ class NotebookCommand(ParadeCommand):
         os.environ['IPYTHONDIR'] = os.path.join(jupyter_path, 'ipython')
 
     def short_desc(self):
-        return 'start a jupyter notebook server with parade context or debug a specified task'
+        return 'start a jupyter lab server with parade context or debug a specified task'
 
     def config_parser(self, parser):
-        parser.add_argument('task', nargs='?', help='the task to debug in notebook')
+        parser.add_argument('task', nargs='?', help='the task to debug in lab notebook')
